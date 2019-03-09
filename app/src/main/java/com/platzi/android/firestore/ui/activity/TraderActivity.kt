@@ -51,8 +51,17 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
         fab.setOnClickListener { view ->
             Snackbar.make(view, getString(R.string.generating_new_cryptos), Snackbar.LENGTH_SHORT)
                 .setAction("Info", null).show()
+            generateCryptoCurrenciesRandom()
         }
 
+    }
+
+    private fun generateCryptoCurrenciesRandom() {
+        for (crypto in cryptosAdapter.cryptoList) {
+            val amount = (1..10).random()
+            crypto.available += amount
+            firestoreService.updateCrypto(crypto)
+        }
     }
 
     private fun loadCryptos() {
@@ -117,11 +126,11 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
 
         })
 
-        firestoreService.listenForUpdates(cryptosList, object: RealtimeDataListener<Crypto>{
+        firestoreService.listenForUpdates(cryptosList, object : RealtimeDataListener<Crypto> {
             override fun onDataChange(updatedData: Crypto) {
                 var pos = 0
-                for(crypto in cryptosAdapter.cryptoList){
-                    if(crypto.name.equals(updatedData.name)){
+                for (crypto in cryptosAdapter.cryptoList) {
+                    if (crypto.name.equals(updatedData.name)) {
                         crypto.available = updatedData.available
                         cryptosAdapter.notifyItemChanged(pos)
                     }
